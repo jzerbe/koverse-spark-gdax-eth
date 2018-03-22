@@ -12,11 +12,12 @@ src_managed/
 project/boot/
 project/plugins/project/
 
-# Scala-IDE specific
-.scala_dependencies
-.worksheet
-
-.project
-.settings
+# IDE specific
+*.iml
 .classpath
+.idea
+.project
+.scala_dependencies
+.settings
+.worksheet
 dependency-reduced-pom.xml
