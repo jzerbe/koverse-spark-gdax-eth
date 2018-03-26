@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.koverse.example.spark;
+package com.gdax.trade;
 
 import com.koverse.com.google.common.collect.Lists;
 
@@ -24,25 +24,18 @@ import com.koverse.sdk.data.SimpleRecord;
 import com.koverse.sdk.transform.spark.JavaSparkTransform;
 import com.koverse.sdk.transform.spark.JavaSparkTransformContext;
 
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.api.java.function.PairFunction;
 
-import scala.Tuple2;
+public class GrossTradeValueTransform extends JavaSparkTransform {
 
-public class JavaWordCountTransform extends JavaSparkTransform {
+  private static final String PRICE_FIELD_NAME_PARAMETER = "priceFieldName";
+  private static final String SIZE_FIELD_NAME_PARAMETER = "sizeFieldName";
 
-  private static final String TEXT_FIELD_NAME_PARAMETER = "textFieldName";
-  
   /**
    * Koverse calls this method to execute your transform.
    *
-   * @param context The context of this spark execution
-   * @return The resulting RDD of this transform execution.
-   *         It will be applied to the output collection.
+   * @param context The context of this spark execution.
+   * @return The resulting RDD of this transform execution, applied to the output collection.
    */
   @Override
   protected JavaRDD<SimpleRecord> execute(JavaSparkTransformContext context) {
@@ -53,11 +46,12 @@ public class JavaWordCountTransform extends JavaSparkTransform {
     // Get the JavaRDD<SimpleRecord> that represents the input Data Collection
     JavaRDD<SimpleRecord> inputRecordsRdd = context.getInputCollectionRdds().get(inputCollectionId);
 
-    // for each Record, tokenize the specified text field and count each occurrence
-    final String fieldName = context.getParameters().get(TEXT_FIELD_NAME_PARAMETER);
-    final JavaWordCounter wordCounter = new JavaWordCounter(fieldName, "['\".?!,:;\\s]+");
-    
-    return wordCounter.count(inputRecordsRdd);
+    // for each Record, inspect the specified text fields and calculate the gross trade value
+    final String priceFieldName = context.getParameters().get(PRICE_FIELD_NAME_PARAMETER);
+    final String sizeFieldName = context.getParameters().get(SIZE_FIELD_NAME_PARAMETER);
+    final GrossTradeValue grossTradeValue = new GrossTradeValue(priceFieldName, sizeFieldName);
+
+    return grossTradeValue.calculateGross(inputRecordsRdd);
   }
 
   /*
@@ -73,7 +67,7 @@ public class JavaWordCountTransform extends JavaSparkTransform {
   @Override
   public String getName() {
 
-    return "Java Word Count Example";
+    return "GDAX ETH - Gross Trade Value calculator";
   }
 
   /**
@@ -85,13 +79,10 @@ public class JavaWordCountTransform extends JavaSparkTransform {
   @Override
   public Iterable<Parameter> getParameters() {
 
-    // This parameter will allow the user to input the field name of their Records which 
-    // contains the strings that they want to tokenize and count the words from. By parameterizing
-    // this field name, we can run this Transform on different Records in different Collections
-    // without changing the code
-    Parameter textParameter
-            = new Parameter(TEXT_FIELD_NAME_PARAMETER, "Text Field Name", Parameter.TYPE_STRING);
-    return Lists.newArrayList(textParameter);
+    return Lists.newArrayList(
+        new Parameter(PRICE_FIELD_NAME_PARAMETER, "Price Field Name", Parameter.TYPE_STRING),
+        new Parameter(SIZE_FIELD_NAME_PARAMETER, "Size Field Name", Parameter.TYPE_STRING)
+    );
   }
 
   /**
@@ -103,7 +94,7 @@ public class JavaWordCountTransform extends JavaSparkTransform {
   @Override
   public String getTypeId() {
 
-    return "javaWordCountExample";
+    return "gdaxEthGrossTradeValue";
   }
 
   /**
@@ -114,7 +105,7 @@ public class JavaWordCountTransform extends JavaSparkTransform {
   @Override
   public Version getVersion() {
 
-    return new Version(0, 0, 1);
+    return new Version(0, 1, 0);
   }
 
   /**
@@ -124,6 +115,6 @@ public class JavaWordCountTransform extends JavaSparkTransform {
    */
   @Override
   public String getDescription() {
-    return "This is the Java Word Count Example Transform";
+    return "This calculates GDAX ETH trade information gross value";
   }
 }
