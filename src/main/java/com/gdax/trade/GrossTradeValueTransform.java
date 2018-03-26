@@ -30,6 +30,7 @@ public class GrossTradeValueTransform extends JavaSparkTransform {
 
   private static final String PRICE_FIELD_NAME_PARAMETER = "priceFieldName";
   private static final String SIZE_FIELD_NAME_PARAMETER = "sizeFieldName";
+  private static final String TRADE_ID_FIELD_NAME_PARAMETER = "tradeIdFieldName";
 
   /**
    * Koverse calls this method to execute your transform.
@@ -49,7 +50,10 @@ public class GrossTradeValueTransform extends JavaSparkTransform {
     // for each Record, inspect the specified text fields and calculate the gross trade value
     final String priceFieldName = context.getParameters().get(PRICE_FIELD_NAME_PARAMETER);
     final String sizeFieldName = context.getParameters().get(SIZE_FIELD_NAME_PARAMETER);
-    final GrossTradeValue grossTradeValue = new GrossTradeValue(priceFieldName, sizeFieldName);
+    final String tradeIdFieldName = context.getParameters().get(TRADE_ID_FIELD_NAME_PARAMETER);
+    final GrossTradeValue grossTradeValue = new GrossTradeValue(
+        priceFieldName, sizeFieldName, tradeIdFieldName
+    );
 
     return grossTradeValue.calculateGross(inputRecordsRdd);
   }
@@ -81,7 +85,8 @@ public class GrossTradeValueTransform extends JavaSparkTransform {
 
     return Lists.newArrayList(
         new Parameter(PRICE_FIELD_NAME_PARAMETER, "Price Field Name", Parameter.TYPE_STRING),
-        new Parameter(SIZE_FIELD_NAME_PARAMETER, "Size Field Name", Parameter.TYPE_STRING)
+        new Parameter(SIZE_FIELD_NAME_PARAMETER, "Size Field Name", Parameter.TYPE_STRING),
+        new Parameter(TRADE_ID_FIELD_NAME_PARAMETER, "Trade Id Field Name", Parameter.TYPE_STRING)
     );
   }
 

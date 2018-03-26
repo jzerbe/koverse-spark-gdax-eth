@@ -24,10 +24,21 @@ public class GrossTradeValue implements java.io.Serializable {
   private static final long serialVersionUID = 8741666028339586272L;
   private final String priceFieldName;
   private final String sizeFieldName;
+  private final String tradeIdFieldName;
 
-  public GrossTradeValue(String priceFieldName, String sizeFieldName) {
+  /**
+   * Constructor that take all configurable named fields.
+   * @param priceFieldName Field name that contains the trade price.
+   * @param sizeFieldName Field name that contains trade size.
+   * @param tradeIdFieldName Field name that contains the trade id.
+   */
+  public GrossTradeValue(
+      final String priceFieldName, final String sizeFieldName,
+      final String tradeIdFieldName
+  ) {
     this.priceFieldName = priceFieldName;
     this.sizeFieldName = sizeFieldName;
+    this.tradeIdFieldName = tradeIdFieldName;
   }
 
   /**
@@ -40,13 +51,15 @@ public class GrossTradeValue implements java.io.Serializable {
 
     // turn each tuple into an output Record with a "gross" field
     JavaRDD<SimpleRecord> outputRdd = inputRecordsRdd.map(record -> {
-      float tradePrice = Float.parseFloat(record.get(priceFieldName).toString());
-      float tradeSize = Float.parseFloat(record.get(sizeFieldName).toString());
+      final float tradePrice = Float.parseFloat(record.get(priceFieldName).toString());
+      final float tradeSize = Float.parseFloat(record.get(sizeFieldName).toString());
+      final String tradeId = record.get(tradeIdFieldName).toString();
 
       float tradeGross = tradePrice * tradeSize;
 
       SimpleRecord outputRecord = new SimpleRecord();
       outputRecord.put("gross", tradeGross);
+      outputRecord.put("trade_id", tradeId);
       return outputRecord;
     });
 

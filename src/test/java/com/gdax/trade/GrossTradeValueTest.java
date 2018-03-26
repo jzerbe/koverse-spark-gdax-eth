@@ -49,7 +49,7 @@ public class GrossTradeValueTest extends SharedJavaSparkContext {
     JavaRDD<SimpleRecord> inputRecordsRdd = jsc().parallelize(Lists.newArrayList(record0, record1));
 
     // ACT
-    GrossTradeValue grossTradeValue = new GrossTradeValue("price", "size");
+    GrossTradeValue grossTradeValue = new GrossTradeValue("price", "size", "trade_id");
     JavaRDD<SimpleRecord> outputRecordsRdd = grossTradeValue.calculateGross(inputRecordsRdd);
 
     // ASSERT
@@ -61,7 +61,7 @@ public class GrossTradeValueTest extends SharedJavaSparkContext {
         .filter(record -> record.get("trade_id").equals("31000108"))
         .findFirst();
     assertTrue(sampleRecordValues.isPresent());
-    assertEquals(sampleRecordValues.get().get("gross"), 6.49773468);
+    assertEquals(6.4977345, (float)sampleRecordValues.get().get("gross"), 0.0000001);
 
   }
 }
