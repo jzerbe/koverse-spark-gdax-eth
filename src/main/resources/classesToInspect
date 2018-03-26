@@ -1,4 +1,2 @@
-com.koverse.example.spark.WordCountTransform
-com.koverse.example.spark.WordCountDataFrameTransform
-com.koverse.example.spark.JoinTransform
-com.koverse.example.spark.JavaWordCountTransform
+com.gdax.trade.GrossTradeValue
+com.gdax.trade.GrossTradeValueTransform
